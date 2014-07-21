@@ -1,4 +1,5 @@
 'use strict';
+var Stock = require('./stock');
 
 function Portfolio(name){
   this.name = name;
@@ -6,15 +7,49 @@ function Portfolio(name){
 
 }
 
-Portfolio.prototype.add = function(stock){
-  for(var i = 0; i < this.stocks.length; i++){
-    if(this.stocks[i].symbol === stock.symbol){
-      this.stocks[i].count += stock.count;
-      return;
+Portfolio.prototype.add = function(symbol, count){
+  var stock = findStock(this.stocks, symbol);
+
+  if(stock){
+    stock.count += parseInt(count);
+  }else{
+    stock = new Stock(symbol, count);
+    this.stocks.push(stock);
+  }
+};
+
+Portfolio.prototype.del = function(symbol, count){
+  var stock = findStock(this.stocks, symbol);
+
+  if(stock){
+    stock.count -= count;
+    if(stock.count <= 0){
+      var index = findStockIndex(this.stocks, stock.symbol);
+      this.stocks.splice(index, 1);
+    }
+  }
+};
+
+// Private Helper Functions //
+
+function findStock(stocks, symbol){
+  for(var i = 0; i < stocks.length; i++){
+    if(stocks[i].symbol === symbol.toUpperCase()){
+      return stocks[i];
     }
   }
 
-  this.stocks.push(stock);
-};
+  return null;
+}
+
+function findStockIndex(stocks, symbol){
+  for(var i = 0; i < stocks.length; i++){
+    if(stocks[i].symbol === symbol.toUpperCase()){
+      return i;
+    }
+  }
+
+  return -1;
+}
 
 module.exports = Portfolio;
